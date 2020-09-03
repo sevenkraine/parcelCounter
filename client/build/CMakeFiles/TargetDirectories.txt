@@ -1,0 +1,4 @@
+/home/wolf/Documents/stevenCode/parcelCounter/client/build/CMakeFiles/rebuild_cache.dir
+/home/wolf/Documents/stevenCode/parcelCounter/client/build/CMakeFiles/edit_cache.dir
+/home/wolf/Documents/stevenCode/parcelCounter/client/build/CMakeFiles/json-utils-library.dir
+/home/wolf/Documents/stevenCode/parcelCounter/client/build/CMakeFiles/client.dir

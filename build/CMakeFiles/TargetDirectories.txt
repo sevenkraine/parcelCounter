@@ -1,0 +1,3 @@
+/home/wolf/Documents/stevenCode/parcelCounter/build/CMakeFiles/rebuild_cache.dir
+/home/wolf/Documents/stevenCode/parcelCounter/build/CMakeFiles/cameraCode.dir
+/home/wolf/Documents/stevenCode/parcelCounter/build/CMakeFiles/edit_cache.dir
