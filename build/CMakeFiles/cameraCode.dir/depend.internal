@@ -3,6 +3,8 @@
 
 CMakeFiles/cameraCode.dir/cameraCode.cpp.o
  /home/wolf/Documents/stevenCode/parcelCounter/cameraCode.cpp
+ /home/wolf/Documents/stevenCode/parcelCounter/messaging.cpp
+ /home/wolf/Documents/stevenCode/parcelCounter/messaging.h
  /opt/MVS/include/CameraParams.h
  /opt/MVS/include/MvCameraControl.h
  /opt/MVS/include/MvErrorDefine.h

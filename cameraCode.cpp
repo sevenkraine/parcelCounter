@@ -13,14 +13,18 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/objdetect.hpp>
 #include <opencv2/dnn.hpp>
-
+#include "messaging.h"
+#include "messaging.cpp"
+#include <time.h>
+#include <plc.h>
+#include <chrono>
+#include <boost/thread/thread.hpp>
 
 bool g_bExit = false;
+double time4 = 0;
+clock_t t;
+auto beg = std::chrono::high_resolution_clock::now();
 
-cv::CascadeClassifier face_cascade;
-
-void findAndContour(cv::Mat img1, cv::Mat img);
-cv::String face_cascade_name = "../../../../../../../usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt.xml";
 
 // wait for user to input enter to stop grabbing or end the sample program
 void PressEnterToExit(void)
@@ -28,14 +32,17 @@ void PressEnterToExit(void)
     int c;
     while ((c = getchar()) != '\n' && c != EOF)
     {
+        
         fprintf(stderr, "\nPress enter to exit.\n");
     };
 
-    while (getchar() != '\n')
-        fprintf(stderr, "\nPress enter to exit.\n");
+    while (getchar() != '\n'){
+       
+    }
+    fprintf(stderr, "\nPress enter to exit.\n");
     g_bExit = true;
 
-    sleep(1);
+    sleep(.11);
 }
 
 bool PrintDeviceInfo(MV_CC_DEVICE_INFO *pstMVDevInfo)
@@ -72,52 +79,50 @@ bool PrintDeviceInfo(MV_CC_DEVICE_INFO *pstMVDevInfo)
 
 static void *WorkThread1(void *pUser)
 {
-    if( !face_cascade.load( face_cascade_name ) )
-    {
-        printf("can't open the face cascade\n") ;
-
-    };
     int nRet = MV_OK;
     while (1)
     {
         nRet = MV_CC_SetCommandValue(pUser, "TriggerSoftware");
-        if (MV_OK != nRet)
+        //printf("made it");
+        /*if (MV_OK != nRet)
         {
             printf("failed in TriggerSoftware[%x]\n", nRet);
         }
-        cv::Mat img;
-        img = cv::imread("../image.jpg", cv::IMREAD_COLOR);
-        if (img.empty())
-        {
-            printf("couldn't read it\n");
-            continue;
-        }
-        char k = cv::waitKey(1);
-        cv::Mat imGray;
-        cv::Mat Canny;
-        cv::cvtColor(img, imGray, cv::COLOR_BGR2GRAY);
-        //cv::Canny(imGray,Canny,100,200);
-        cv::equalizeHist(imGray, imGray);
+        sleep(.001);*/
+        // //cv::Mat img;
+        // img = cv::imread("../image.jpg", cv::IMREAD_COLOR);
+        // if (img.empty())
+        // {
+        //     printf("couldn't read it\n");
+        //     continue;
+        // }
+        // char k = cv::waitKey(1);
+        // cv::Mat imGray;
+        // cv::Mat Canny;
+        // cv::cvtColor(img, imGray, cv::COLOR_BGR2GRAY);
+       
+        // cv::equalizeHist(imGray, imGray);
     
-        std::vector<std::vector<cv::Point> > contours;
-        cv::findContours(Canny, contours,cv::RETR_TREE,cv::CHAIN_APPROX_SIMPLE);
-        findAndContour(imGray, img);
-        cv::imshow("hello", img);
+        // std::vector<std::vector<cv::Point> > contours;
+        // cv::findContours(Canny, contours,cv::RETR_TREE,cv::CHAIN_APPROX_SIMPLE);
+        // cv::imshow("hello", img);
         
-        system("./../client/build/client -m mhsrgb_graphdef -s MHS ../empty.png");
+        //system("./../client/build/client -m mhsrgb_graphdef -s MHS ../empty.png");
 
         if (g_bExit)
         break;
     }
 }
 
-
+int frameNum = 0;
+int time1 = 0;
 static void *WorkThread(void *pUser)
 {
     int nRet = MV_OK;
     unsigned char *pDataForSaveImage = NULL;
     // Get payload size
     MVCC_INTVALUE stParam;
+    MV_FRAME_OUT_INFO_EX stImageInfo = {0};
     memset(&stParam, 0, sizeof(MVCC_INTVALUE));
     nRet = MV_CC_GetIntValue(pUser, "PayloadSize", &stParam);
     if (MV_OK != nRet)
@@ -126,7 +131,7 @@ static void *WorkThread(void *pUser)
         return NULL;
     }
 
-    MV_FRAME_OUT_INFO_EX stImageInfo = {0};
+    
     memset(&stImageInfo, 0, sizeof(MV_FRAME_OUT_INFO_EX));
     unsigned char *pData = (unsigned char *)malloc(sizeof(unsigned char) * stParam.nCurValue);
     if (NULL == pData)
@@ -143,14 +148,22 @@ static void *WorkThread(void *pUser)
         }
 
         nRet = MV_CC_GetOneFrameTimeout(pUser, pData, nDataSize, &stImageInfo, 1000);
-    sleep(1);
-
+        if(stImageInfo.nFrameNum>= 400){
+            g_bExit = true;
+            if(time4 == 0){
+                time4 = clock() - t;
+                auto end = std::chrono::high_resolution_clock::now();
+                auto dur = std::chrono::duration_cast<std::chrono::microseconds>(end - beg);
+                printf("framerate = %i",dur);
+            }
+            
+        }
         if (nRet == MV_OK)
         {
-            printf("GetOneFrame, Width[%d], Height[%d], nFrameNum[%d]\n",
-                   stImageInfo.nWidth, stImageInfo.nHeight, stImageInfo.nFrameNum);
+            // printf("GetOneFrame, Width[%d], Height[%d], nFrameNum[%d]\n",
+            //        stImageInfo.nWidth, stImageInfo.nHeight, stImageInfo.nFrameNum);
             
-
+            frameNum = stImageInfo.nFrameNum;
             pDataForSaveImage = (unsigned char *)malloc(stImageInfo.nWidth * stImageInfo.nHeight * 4 + 2048);
             if (NULL == pDataForSaveImage)
             {
@@ -186,7 +199,7 @@ static void *WorkThread(void *pUser)
             }
             fwrite(pDataForSaveImage, 1, stSaveParam.nImageLen, fp);
             fclose(fp);
-            printf("save image succeed\n");
+            printf("save image succeed\n"); 
         }
         else
         {
@@ -200,12 +213,30 @@ static void *WorkThread(void *pUser)
 
 int main()
 {  
+    bfv::Link link;
 
+    /*bfv::PlcMsg fromplc;
+    bfv::PlcMsg fromplc_last;
+    bfv::BfvMsg toplc;
+    
+    printf("Establishing connection with the PLC\n");
+        
+
+    toplc.BFV_Length_in_Flow_Direction = 0;
+    toplc.BFV_Package_Count = 0;
+    toplc.BFV_Percent_Area_Right = 0;
+    toplc.BFV_Percent_Area_Left = 0;
+    toplc.BFV_Total_Length = 0;
+    toplc.BFV_Total_Width = 0;
+
+    link.send(toplc);
+
+    link.recv(fromplc);*/
 
     int nRet = MV_OK;
 
     void *handle = NULL;
-
+    
     do
     {
         MV_CC_DEVICE_INFO_LIST stDeviceList;
@@ -238,18 +269,22 @@ int main()
             break;
         }
 
-        printf("Please Intput camera index: ");
-        unsigned int nIndex = 0;
-        scanf("%d", &nIndex);
+        // printf("Please Intput camera index: ");
+        // unsigned int nIndex = 0;
+        // scanf("%d", &nIndex);
 
-        if (nIndex >= stDeviceList.nDeviceNum)
-        {
-            printf("Intput error!\n");
-            break;
-        }
+        // if (nIndex >= stDeviceList.nDeviceNum)
+        // {
+        //     printf("Intput error!\n");
+        //     break;
+        // }
+
+        boost::thread_group camera_threads;
+
+       
 
         // select device and create handle
-        nRet = MV_CC_CreateHandle(&handle, stDeviceList.pDeviceInfo[nIndex]);
+        nRet = MV_CC_CreateHandle(&handle, stDeviceList.pDeviceInfo[0/*nIndex*/]);
         if (MV_OK != nRet)
         {
             printf("MV_CC_CreateHandle fail! nRet [%x]\n", nRet);
@@ -265,7 +300,7 @@ int main()
         }
 
         // set trigger mode as off
-        nRet = MV_CC_SetEnumValue(handle, "TriggerMode", 1);
+        nRet = MV_CC_SetEnumValue(handle, "TriggerMode", 0);
         if (MV_OK != nRet)
         {
             printf("MV_CC_SetTriggerMode fail! nRet [%x]\n", nRet);
@@ -273,25 +308,27 @@ int main()
         }
 
         // start grab image
+        beg = std::chrono::high_resolution_clock::now();
         nRet = MV_CC_StartGrabbing(handle);
         if (MV_OK != nRet)
         {
             printf("MV_CC_StartGrabbing fail! nRet [%x]\n", nRet);
             break;
         }
-        pthread_t nThreadID1;
-        nRet = pthread_create(&nThreadID1, NULL, WorkThread1, handle);
-
-        pthread_t nThreadID;
-        nRet = pthread_create(&nThreadID, NULL, WorkThread, handle);
-        if (nRet != 0)
-        {
-            printf("thread create failed.ret = %d\n", nRet);
-            break;
-        }
+        // pthread_t nThreadID1;
+        // nRet = pthread_create(&nThreadID1, NULL, WorkThread1, handle);
+        camera_threads.create_thread(boost::bind(WorkThread1, handle));
+        
+        camera_threads.create_thread(boost::bind(WorkThread, handle));
+        // if (nRet != 0)
+        // {
+        //     printf("thread create failed.ret = %d\n", nRet);
+        //     break;
+        // }
 
         PressEnterToExit();
         // end grab image
+
         nRet = MV_CC_StopGrabbing(handle);
         if (MV_OK != nRet)
         {
@@ -320,6 +357,7 @@ int main()
     {
         if (handle != NULL)
         {
+            
             MV_CC_DestroyHandle(handle);
             handle = NULL;
         }
@@ -327,18 +365,4 @@ int main()
 
     printf("exit\n");
     return 0;
-}
-void findAndContour(cv::Mat img1, cv::Mat img){
-
-    std::vector<cv::Rect> faces;
-
-    face_cascade.detectMultiScale(img1, faces);
-    
-    
-    //put the rectangle on the faces
-    for(size_t i=0; i<faces.size();i++){
-              
-        cv::rectangle(img,faces[i],cv::Scalar(255,0,0),4,0,0);
-
-    }
 }
