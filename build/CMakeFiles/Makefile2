@@ -74,12 +74,12 @@ clean: CMakeFiles/cameraCode.dir/clean
 CMakeFiles/cameraCode.dir/all:
 	$(MAKE) -f CMakeFiles/cameraCode.dir/build.make CMakeFiles/cameraCode.dir/depend
 	$(MAKE) -f CMakeFiles/cameraCode.dir/build.make CMakeFiles/cameraCode.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/wolf/Documents/stevenCode/parcelCounter/build/CMakeFiles --progress-num=1,2 "Built target cameraCode"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/wolf/Documents/stevenCode/parcelCounter/build/CMakeFiles --progress-num=1,2,3 "Built target cameraCode"
 .PHONY : CMakeFiles/cameraCode.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/cameraCode.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/wolf/Documents/stevenCode/parcelCounter/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/wolf/Documents/stevenCode/parcelCounter/build/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/cameraCode.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/wolf/Documents/stevenCode/parcelCounter/build/CMakeFiles 0
 .PHONY : CMakeFiles/cameraCode.dir/rule

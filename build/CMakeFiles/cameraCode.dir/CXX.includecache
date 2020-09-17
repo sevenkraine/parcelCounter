@@ -35,8 +35,6 @@ opencv2/imgproc.hpp
 -
 opencv2/objdetect.hpp
 -
-opencv2/dnn.hpp
--
 messaging.h
 /home/wolf/Documents/stevenCode/parcelCounter/messaging.h
 messaging.cpp
@@ -48,6 +46,28 @@ plc.h
 chrono
 -
 boost/thread/thread.hpp
+-
+include/yolo.hpp
+/home/wolf/Documents/stevenCode/parcelCounter/include/yolo.hpp
+
+/home/wolf/Documents/stevenCode/parcelCounter/include/yolo.cpp
+yolo.hpp
+/home/wolf/Documents/stevenCode/parcelCounter/include/yolo.hpp
+
+/home/wolf/Documents/stevenCode/parcelCounter/include/yolo.hpp
+iostream
+-
+fstream
+-
+istream
+-
+sstream
+-
+opencv2/dnn.hpp
+-
+opencv2/imgproc.hpp
+-
+opencv2/highgui.hpp
 -
 
 /home/wolf/Documents/stevenCode/parcelCounter/messaging.cpp

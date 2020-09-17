@@ -12,18 +12,39 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/objdetect.hpp>
-#include <opencv2/dnn.hpp>
 #include "messaging.h"
 #include "messaging.cpp"
 #include <time.h>
+//#include <opencv2/dnn.hpp>
 #include <plc.h>
 #include <chrono>
 #include <boost/thread/thread.hpp>
+#include "include/yolo.hpp"
+
+using namespace cv;
+using namespace dnn;
 
 bool g_bExit = false;
 double time4 = 0;
 clock_t t;
 auto beg = std::chrono::high_resolution_clock::now();
+
+void drawBoundingBox(Mat &img, int id, float confidence, Rect box) {
+    // Draw rectangle
+    int top = box.y - box.height/2;
+    int left = box.x - box.width/2;
+    rectangle(img, Rect(left, top, box.width, box.height), Scalar(0,255,0), 3);
+    // Create the label text
+    String labelTxt = format("%.2f",confidence);
+	String idTxt = format("[%d] ", id);
+    labelTxt = idTxt + labelTxt;
+    // Draw the label text on the image
+    int baseline;
+    Size labelSize = getTextSize(labelTxt, FONT_HERSHEY_SIMPLEX, 1, 2, &baseline);
+    top = max(top, labelSize.height);
+    rectangle(img, Point(left,top - labelSize.height), Point(left + labelSize.width, top + baseline), Scalar(0,0,0), FILLED);
+    putText(img, labelTxt, Point(left, top), FONT_HERSHEY_SIMPLEX, 1, Scalar(255,255,255), 3);
+}
 
 
 // wait for user to input enter to stop grabbing or end the sample program
@@ -154,7 +175,7 @@ static void *WorkThread(void *pUser)
                 time4 = clock() - t;
                 auto end = std::chrono::high_resolution_clock::now();
                 auto dur = std::chrono::duration_cast<std::chrono::microseconds>(end - beg);
-                printf("framerate = %i",dur);
+               // printf("framerate = %a",dur);
             }
             
         }
@@ -213,7 +234,11 @@ static void *WorkThread(void *pUser)
 
 int main()
 {  
-    bfv::Link link;
+    yoloNet yolo = yoloNet("/home/wolf/Documents/stevenCode/parcelCounter/yolo.weights","/home/wolf/Documents/stevenCode/parcelCounter/yolo.cfg","coco.names",416,416,.1);
+
+
+
+   // bfv::Link link;
 
     /*bfv::PlcMsg fromplc;
     bfv::PlcMsg fromplc_last;
@@ -262,22 +287,12 @@ int main()
                 }
                 PrintDeviceInfo(pDeviceInfo);
             }
-        }
+            }
         else
         {
             printf("Found No Devices!\n");
             break;
         }
-
-        // printf("Please Intput camera index: ");
-        // unsigned int nIndex = 0;
-        // scanf("%d", &nIndex);
-
-        // if (nIndex >= stDeviceList.nDeviceNum)
-        // {
-        //     printf("Intput error!\n");
-        //     break;
-        // }
 
         boost::thread_group camera_threads;
 

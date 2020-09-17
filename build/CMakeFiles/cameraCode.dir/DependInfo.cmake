@@ -5,6 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/wolf/Documents/stevenCode/parcelCounter/cameraCode.cpp" "/home/wolf/Documents/stevenCode/parcelCounter/build/CMakeFiles/cameraCode.dir/cameraCode.cpp.o"
+  "/home/wolf/Documents/stevenCode/parcelCounter/include/yolo.cpp" "/home/wolf/Documents/stevenCode/parcelCounter/build/CMakeFiles/cameraCode.dir/include/yolo.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

@@ -150,6 +150,33 @@ cameraCode.cpp.s:
 	$(MAKE) -f CMakeFiles/cameraCode.dir/build.make CMakeFiles/cameraCode.dir/cameraCode.cpp.s
 .PHONY : cameraCode.cpp.s
 
+include/yolo.o: include/yolo.cpp.o
+
+.PHONY : include/yolo.o
+
+# target to build an object file
+include/yolo.cpp.o:
+	$(MAKE) -f CMakeFiles/cameraCode.dir/build.make CMakeFiles/cameraCode.dir/include/yolo.cpp.o
+.PHONY : include/yolo.cpp.o
+
+include/yolo.i: include/yolo.cpp.i
+
+.PHONY : include/yolo.i
+
+# target to preprocess a source file
+include/yolo.cpp.i:
+	$(MAKE) -f CMakeFiles/cameraCode.dir/build.make CMakeFiles/cameraCode.dir/include/yolo.cpp.i
+.PHONY : include/yolo.cpp.i
+
+include/yolo.s: include/yolo.cpp.s
+
+.PHONY : include/yolo.s
+
+# target to generate assembly for a file
+include/yolo.cpp.s:
+	$(MAKE) -f CMakeFiles/cameraCode.dir/build.make CMakeFiles/cameraCode.dir/include/yolo.cpp.s
+.PHONY : include/yolo.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,6 +189,9 @@ help:
 	@echo "... cameraCode.o"
 	@echo "... cameraCode.i"
 	@echo "... cameraCode.s"
+	@echo "... include/yolo.o"
+	@echo "... include/yolo.i"
+	@echo "... include/yolo.s"
 .PHONY : help
 
 

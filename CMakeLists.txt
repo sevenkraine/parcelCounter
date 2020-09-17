@@ -13,7 +13,7 @@ find_package(Threads)
 
 find_library(PLCIO_LIBRARY plc)
 
-add_executable(${PROJECT_NAME} cameraCode.cpp)
+add_executable(${PROJECT_NAME} cameraCode.cpp include/yolo.cpp)
 
 target_include_directories(${PROJECT_NAME} 
                         PUBLIC
@@ -21,6 +21,7 @@ target_include_directories(${PROJECT_NAME}
                         ${Boost_INCLUDE_DIRS}
                         /opt/MVS/include 
                         /usr/local/include
+
                         )
 
 target_link_libraries(

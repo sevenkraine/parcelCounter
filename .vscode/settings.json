@@ -1,6 +1,6 @@
 {
     "files.associations": {
-        "vector": "cpp",
-        "chrono": "cpp"
-    }
+        "fstream": "cpp"
+    },
+    "git.ignoreLimitWarning": true
 }
