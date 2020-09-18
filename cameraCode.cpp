@@ -24,6 +24,12 @@
 using namespace cv;
 using namespace dnn;
 
+yoloNet yolo = yoloNet("/home/wolf/Documents/stevenCode/parcelCounter/yolo.weights",
+    "/home/wolf/Documents/stevenCode/parcelCounter/yolo.cfg",
+    "/home/wolf/Documents/stevenCode/parcelCounter/coco.names",416,416,.1);
+
+    std::vector<yoloObject_t> objects;
+
 bool g_bExit = false;
 double time4 = 0;
 clock_t t;
@@ -50,20 +56,23 @@ void drawBoundingBox(Mat &img, int id, float confidence, Rect box) {
 // wait for user to input enter to stop grabbing or end the sample program
 void PressEnterToExit(void)
 {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF)
-    {
+    // int c;
+    // while ((c = getchar()) != '\n' && c != EOF)
+    // {
         
-        fprintf(stderr, "\nPress enter to exit.\n");
-    };
+    //     fprintf(stderr, "\nPress enter to exit.\n");
+    // };
 
-    while (getchar() != '\n'){
+    // while (getchar() != '\n'){
        
-    }
-    fprintf(stderr, "\nPress enter to exit.\n");
-    g_bExit = true;
-
+    // }
+    // fprintf(stderr, "\nPress enter to exit.\n");
+    // g_bExit = true;
+while(!g_bExit){
     sleep(.11);
+}
+
+    
 }
 
 bool PrintDeviceInfo(MV_CC_DEVICE_INFO *pstMVDevInfo)
@@ -98,40 +107,46 @@ bool PrintDeviceInfo(MV_CC_DEVICE_INFO *pstMVDevInfo)
     return true;
 }
 
+cv::Mat img;
+
 static void *WorkThread1(void *pUser)
 {
+    // img = cv::imread("../image.jpg", cv::IMREAD_COLOR);
     int nRet = MV_OK;
     while (1)
     {
+        //printf("made it in the camera thread");
         nRet = MV_CC_SetCommandValue(pUser, "TriggerSoftware");
-        //printf("made it");
-        /*if (MV_OK != nRet)
-        {
-            printf("failed in TriggerSoftware[%x]\n", nRet);
+        if(nRet != MV_OK){
+            printf("failed in trigger software");
         }
-        sleep(.001);*/
-        // //cv::Mat img;
-        // img = cv::imread("../image.jpg", cv::IMREAD_COLOR);
-        // if (img.empty())
-        // {
-        //     printf("couldn't read it\n");
-        //     continue;
-        // }
-        // char k = cv::waitKey(1);
-        // cv::Mat imGray;
-        // cv::Mat Canny;
-        // cv::cvtColor(img, imGray, cv::COLOR_BGR2GRAY);
-       
-        // cv::equalizeHist(imGray, imGray);
-    
-        // std::vector<std::vector<cv::Point> > contours;
-        // cv::findContours(Canny, contours,cv::RETR_TREE,cv::CHAIN_APPROX_SIMPLE);
-        // cv::imshow("hello", img);
-        
-        //system("./../client/build/client -m mhsrgb_graphdef -s MHS ../empty.png");
+        waitKey(100);
+        img = imread("../image.jpg", IMREAD_COLOR);
+        yolo.runOnFrame(img);
 
-        if (g_bExit)
-        break;
+        objects = yolo.getOutputObjects();
+
+        for(int i = 0; i < objects.size(); i++) {
+                printf("%3d. [", i);
+                int nPercent = (int)((objects[i].confidence + 0.05) * 10);
+                for (int j = 1; j <= 10; j++) {
+                    if (j <= nPercent) printf("=");
+                    else printf(" ");
+                }
+                std::cout << "] " << objects[i].confidence << std::endl;
+                drawBoundingBox(img, i, objects[i].confidence, objects[i].boundingBox);
+            }
+
+        cv::imshow("hello", img);
+        waitKey(10);
+             
+        
+   
+
+        if (g_bExit){
+            printf("breaking \n");
+            break;
+        }
     }
 }
 
@@ -234,9 +249,17 @@ static void *WorkThread(void *pUser)
 
 int main()
 {  
-    yoloNet yolo = yoloNet("/home/wolf/Documents/stevenCode/parcelCounter/yolo.weights","/home/wolf/Documents/stevenCode/parcelCounter/yolo.cfg","coco.names",416,416,.1);
+    Mat frame; 
 
+    frame = imread("../single.png");
 
+    
+
+    yolo.runOnFrame(frame);
+
+    
+    
+    //std::cerr << (frame.size());
 
    // bfv::Link link;
 
@@ -315,7 +338,7 @@ int main()
         }
 
         // set trigger mode as off
-        nRet = MV_CC_SetEnumValue(handle, "TriggerMode", 0);
+        nRet = MV_CC_SetEnumValue(handle, "TriggerMode", 1);
         if (MV_OK != nRet)
         {
             printf("MV_CC_SetTriggerMode fail! nRet [%x]\n", nRet);

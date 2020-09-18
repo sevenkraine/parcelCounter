@@ -1,6 +1,0 @@
-Camera_Status 2
-Percent_Area_Coverage 2
-Total_Package_Length 5
-Parcel_Count 2
-Parcels: Length 2 Width 2 Height 2
- 

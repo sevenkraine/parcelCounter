@@ -14,7 +14,7 @@ yoloNet::yoloNet(const String weightsPath, const String configPath, const String
 
     // load class names
     std::ifstream classes_ifs(classesPath.c_str());
-    //CV_Assert(classes_ifs.is_open());
+    CV_Assert(classes_ifs.is_open());
     std::string line;
 
     while (std::getline(classes_ifs, line))
